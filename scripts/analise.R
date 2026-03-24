@@ -4,3 +4,5 @@ mean(x)
 sum(x)
 
 median(x)
+
+var(x)
