@@ -1,0 +1,199 @@
+---
+title: "Exercicios Capitulos 2 e 3"
+author: "Gabriela Yumi Assano"
+date: "2026-03-24"
+output: 
+  pdf_document:
+    keep_tex: false
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = ".") })
+---
+```{r root-dir, include=FALSE}
+knitr::opts_knit$set(root.dir = "../")
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Capítulo 3 — Reprodutibilidade
+
+## Git e GitHub
+
+### Exercício 1 (Fácil)
+Criei uma conta no GitHub e configurei o Git no computador com nome e e-mail usando o Terminal:
+```
+git config --global user.name "Gabriela Yumi"
+git config --global user.email "gabiassano@usp.br"
+```
+
+### Exercício 2 (Fácil)
+Criei o repositório "exercicio-stat-basica" no GitHub e clonei no RStudio via File > New Project > Version Control > Git.
+
+### Exercício 3 (Médio)
+Criei o arquivo `scripts/analise.R` com um código simples e realizei o ciclo completo: stage, commit e push.
+```
+git add scripts/analise.R
+git commit -m "Adiciona código de análise exploratória"
+git push
+```
+
+### Exercício 4 (Médio)
+Modifiquei o arquivo `analise.R` adicionando mais linhas de código e fiz um novo commit e push. O histórico de commits pode ser visto no GitHub.
+
+### Exercício 5 (Médio)
+Criei a branch `experimento`, modifiquei o `analise.R` adicionando `var(x)`, fiz commit na branch e depois voltei para a `main` e realizei o merge.
+```
+git checkout -b experimento
+git merge experimento
+```
+
+## R Markdown
+
+### Exercício 1 (Fácil)
+Este documento foi criado como um arquivo R Markdown no RStudio via File > New File > R Markdown, escolhendo o formato HTML. O botão Knit foi usado para renderizar o documento.
+
+### Exercício 2 (Médio)
+Abaixo está um exemplo com texto formatado, lista numerada e um chunk de código R:
+
+**Texto em negrito** e *texto em itálico*.
+
+Lista numerada:
+
+1. Primeiro item
+2. Segundo item
+3. Terceiro item
+```{r media-vetor}
+# Calculando a média de um vetor
+x <- c(10, 20, 30, 40, 50)
+mean(x)
+```
+
+### Exercício 3 (Médio)
+Abaixo importamos o banco de dados e apresentamos as 10 primeiras linhas e um gráfico:
+```{r importa-dados, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+pib_cid <- readRDS("dados/pib_cid.RDS")
+knitr::kable(head(pib_cid %>% select(nome_munic, sigla_uf, pib_total, pib_per_capita), 10))
+```
+```{r grafico-pib, echo=FALSE, message=FALSE, warning=FALSE}
+pib_cid %>%
+  ggplot(aes(x = pib_per_capita)) +
+  geom_histogram() +
+  theme_light() +
+  ggtitle("Distribuição do PIB per capita municipal")
+```
+
+## Workflow
+
+### Exercício 1 (Médio)
+A estrutura de pastas do projeto foi criada seguindo a convenção recomendada:
+```
+exercicio-stat-basica/
+  dados/          # arquivos de dados
+  scripts/        # scripts R
+  outputs/        # tabelas e figuras
+  paper/          # este documento Rmd
+  README.md       # instrucoes do projeto
+```
+
+O projeto foi inicializado como repositório Git e o primeiro commit foi realizado com a mensagem "Initial commit".
+
+# Capítulo 2 — Introdução ao R e RStudio
+
+## Importação de dados
+
+### Exercício 1 (Fácil)
+```{r importa-csv1, message=FALSE, warning=FALSE}
+mun <- read.csv("dados/municipios_virgula.csv")
+nrow(mun)
+names(mun)
+```
+
+### Exercício 2 (Fácil)
+```{r importa-csv2, message=FALSE, warning=FALSE, error=TRUE}
+# Tentativa com read.csv() - separador errado
+mun_erro <- read.csv("dados/municipios_pontovirgula.csv")
+head(mun_erro, 2)
+
+# Importação correta com read.csv2()
+mun2 <- read.csv2("dados/municipios_pontovirgula.csv", fileEncoding = "latin1")
+head(mun2, 2)
+```
+O `read.csv()` usa vírgula como separador por padrão. O `read.csv2()` usa ponto e vírgula, adequado para arquivos no padrão brasileiro.
+
+### Exercício 3 (Médio)
+```{r importa-eleicoes, message=FALSE, warning=FALSE}
+eleicoes <- read.csv("dados/eleicoes_2022.csv")
+library(dplyr)
+filter(eleicoes, municipio == "Pau D'Arco")
+```
+
+### Exercício 4 (Médio)
+```{r importa-idh, message=FALSE, warning=FALSE}
+idh <- read.csv2("dados/idh_municipios.csv", fileEncoding = "latin1")
+str(idh)
+```
+
+## Data Wrangling com dplyr
+
+### Exercício 1 (Fácil)
+```{r dplyr-1, message=FALSE, warning=FALSE}
+mun %>% filter(idh == max(idh)) %>% select(nome_municipio, idh)
+mun %>% filter(idh == min(idh)) %>% select(nome_municipio, idh)
+```
+
+### Exercício 2 (Fácil)
+```{r dplyr-2, message=FALSE, warning=FALSE}
+mun %>% summarise(pop_total = sum(populacao), pop_media = mean(populacao))
+```
+
+### Exercício 3 (Médio)
+```{r dplyr-3, message=FALSE, warning=FALSE}
+eleicoes %>%
+  group_by(candidato) %>%
+  summarise(total_votos = sum(votos)) %>%
+  arrange(desc(total_votos))
+```
+
+### Exercício 4 (Médio)
+```{r dplyr-4, message=FALSE, warning=FALSE}
+idh %>%
+  group_by(regiao) %>%
+  summarise(idh_medio = mean(idh_2010)) %>%
+  arrange(desc(idh_medio))
+```
+
+### Exercício 5 (Médio)
+```{r dplyr-5, message=FALSE, warning=FALSE}
+eleicoes %>%
+  group_by(municipio) %>%
+  slice_max(percentual, n = 1) %>%
+  select(municipio, candidato, percentual)
+```
+
+## Visualização com ggplot2
+
+### Exercício 1 (Fácil)
+```{r viz-1, message=FALSE, warning=FALSE}
+library(ggplot2)
+mun %>%
+  ggplot(aes(x = reorder(nome_municipio, -populacao), y = populacao)) +
+  geom_col() +
+  coord_flip() +
+  xlab("Município") +
+  ylab("População") +
+  ggtitle("População por município") +
+  theme_light()
+```
+
+### Exercício 2 (Médio)
+```{r viz-2, message=FALSE, warning=FALSE}
+idh %>%
+  ggplot(aes(x = idh_educacao, y = idh_renda, color = regiao)) +
+  geom_point() +
+  xlab("IDH Educação") +
+  ylab("IDH Renda") +
+  ggtitle("IDH Educação x IDH Renda por região") +
+  theme_light()
+```
+
